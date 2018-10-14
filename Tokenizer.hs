@@ -5,10 +5,11 @@ data Operator = Plus
               | Mult
               | Div
               | Power
+              | Cmd
               deriving (Show, Eq)
 
 isOperator :: Char -> Bool
-isOperator x = x `elem` "+-*/^"
+isOperator x = x `elem` "+-*/^;"
 
 operator :: Char -> Operator
 operator c | c == '+' = Plus
@@ -16,6 +17,7 @@ operator c | c == '+' = Plus
            | c == '*' = Mult
            | c == '/' = Div
            | c == '^' = Power
+           | c == ';' = Cmd
 operator c = error ("Lexical error: " ++ c : " is not an operator!")
 
 isDigit :: Char -> Bool

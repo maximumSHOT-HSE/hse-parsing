@@ -32,3 +32,6 @@ main = do
   runParser " -   ---         5 - 6   "
   runParser " var = 32^3 + (- 83)/32       "
   runParser "a*b^c/d+e-f^(-2)*d"
+  runParser "x = 13; y = z = 42 + 6; 777"
+  runParser " var = 32^3 + (- 83)/32; a = 43; 44    "
+  

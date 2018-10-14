@@ -11,18 +11,28 @@ data AST = ASum T.Operator AST AST
          | AIdent String
          | AUnaryMinus AST
          | APower T.Operator AST AST
+         | ACmd T.Operator AST AST
 
 -- TODO: Rewrite this without using Success and Error
 parse :: String -> Maybe (Result AST)
 parse input =
   case input of
     [] -> Nothing
-    _ -> case expression input of
+    _ -> case commands input of
            Success (tree, ts') ->
              if null ts'
              then Just (Success tree)
              else Just (Error ("Syntax error on: " ++ show ts')) -- Only a prefix of the input is parsed
            Error err -> Just (Error err) -- Legitimate syntax error
+
+commands :: Parser AST
+commands =
+  expression >>= \l ->
+  ( ( cmd       >>= \op ->
+      commands  >>= \r  -> return (ACmd op l r)
+    )
+    <|> return l
+  )
 
 expression :: Parser AST
 expression =
@@ -91,6 +101,9 @@ divMult   = map T.operator (char '/' <|> char '*')
 power'' :: Parser T.Operator
 power''     = map T.operator (char '^')
 
+cmd :: Parser T.Operator
+cmd         = map T.operator (char ';')
+
 instance Show AST where
   show tree = "\n" ++ show' 0 tree
     where
@@ -104,6 +117,7 @@ instance Show AST where
                   AIdent i      -> show i
                   AUnaryMinus v -> showOp T.Minus : "\n" ++ show' (ident n) v
                   APower op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  ACmd op l r   -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
         )
       ident = (+1)
       showOp T.Plus  = '+'
@@ -111,3 +125,4 @@ instance Show AST where
       showOp T.Mult  = '*'
       showOp T.Div   = '/'
       showOp T.Power = '^'
+      showOp T.Cmd   = ';'

@@ -2,7 +2,9 @@
 A simple recursive descent parser. Written for the formal languages course in HSE. The language is described with the following grammar:
 
 ```
-S -> Expr | \epsilon
+S -> Commands | \epsilon
+
+Commands -> Expr (; Commands)?
 
 Expr -> Ident = Expr
       | Term ((+ | -) Expr)?
