@@ -46,5 +46,13 @@ isAlpha c = c `elem` ['a' .. 'z']
 alpha :: Char -> Char
 alpha c = c
 
+varname :: String -> String
+varname [] = ""
+varname s = fst $ span isAlpha s
+
+isVarname :: String -> Bool
+isVarname [] = False
+isVarname s = fst (span isAlpha s) == s
+
 isWhiteSpace :: Char -> Bool
 isWhiteSpace c = c `elem` " \t\n"
