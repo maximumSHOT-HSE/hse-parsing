@@ -76,3 +76,12 @@ map f parser inp =
   case parser (dropWhile isSpace inp) of
     Success (r, inp') -> Success (f r, inp')
     Error err -> Error err
+
+map' :: (Input -> Bool) -> String -> Parser a -> Input -> Result a
+map' pred msg parser inp =
+  case parser (dropWhile isSpace inp) of
+    Success (r, inp') ->
+      if pred inp'
+      then Success r
+      else Error (msg ++ show inp')
+    Error err -> Error err

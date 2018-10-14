@@ -18,12 +18,7 @@ parse :: String -> Maybe (Result AST)
 parse input =
   case input of
     [] -> Nothing
-    _ -> case commands input of
-           Success (tree, ts') ->
-             if null ts'
-             then Just (Success tree)
-             else Just (Error ("Syntax error on: " ++ show ts')) -- Only a prefix of the input is parsed
-           Error err -> Just (Error err) -- Legitimate syntax error
+    _  -> Just ( map' null "Syntax error on: " commands input )
 
 commands :: Parser AST
 commands =
