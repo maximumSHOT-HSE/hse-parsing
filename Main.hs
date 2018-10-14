@@ -35,5 +35,13 @@ main = do
   -- runParser "x = 13; y = z = 42 + 6; 777"
   -- runParser " var = 32^3 + (- 83)/32; a = 43; 44    "
 
-  runParser "[1,2,3] ; [[z]]"
-  -- runParser "   [ b = 13, [z],  42 + 6] ; [31, 25]; 72817; var = 5^-2"
+  -- runParser "[1,2,3] ; [[z]]"
+  runParser "   [ b = 13, [z],  42 + 6] ; [31, 25]; 72817; var = 5^-2"
+  runParser "[1, 2, [2 + 3, val = 123^15 + 10, [a], [zero, one, two, 3, 4, 5 + 0, val = 6]]]"
+  runParser "[1, 2, [2 + 3, val = 123^15 + 10, [a], [zero, one, two, 3, 4, 5 + 0, val = 6]], lol]; same; 777"
+
+  runParser "abc1"
+  runParser "abc_a"
+  runParser "_var"
+
+  runParser "[1, 2, [2 + 3, val = 123^15 + 10, [a], [zero, one, two, 3, 4, 5 + 0, val_1 = 6]], lol]; same; 777"

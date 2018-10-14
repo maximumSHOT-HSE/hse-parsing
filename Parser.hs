@@ -94,7 +94,7 @@ number :: Parser AST
 number      = map (ANum   . T.value) (sat T.isValue (elem' T.isDigit))
 
 identifier :: Parser AST
-identifier = map (AIdent . T.varname) (sat T.isVarname (elem' T.isAlpha))
+identifier = map (AIdent . T.varname) (sat T.isVarname cut_varname)
 
 lparen :: Parser Char
 lparen = char '('

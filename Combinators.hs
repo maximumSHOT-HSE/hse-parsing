@@ -85,3 +85,14 @@ map' pred msg parser inp =
       then Success r
       else Error (msg ++ show inp')
     Error err -> Error err
+
+
+cut_varname :: Parser String
+cut_varname [] = Error "Can't read symbol"
+cut_varname s = Success (var, rest)
+  where
+    (x, inp') = span isAlpha s
+    (y, inp'') = span (\x -> (isAlpha x) || (x == '_') || (isDigit x)) inp'
+    var = x ++ y
+    rest = inp''
+

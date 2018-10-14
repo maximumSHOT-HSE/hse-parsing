@@ -54,11 +54,16 @@ alpha c = c
 
 varname :: String -> String
 varname [] = ""
-varname s = fst $ span isAlpha s
+varname s = x ++ y
+  where
+    (x, rest) = span (\x -> (isAlpha x) || (x == '_')) s
+    (y, _) = span (\x -> (isAlpha x) || (x == '_') || (isDigit x)) rest
 
 isVarname :: String -> Bool
 isVarname [] = False
-isVarname s = fst (span isAlpha s) == s
+isVarname (c:cs) 
+  | not (isAlpha c || c == '_') = False
+  | otherwise = fst (span (\x -> (isAlpha x) || (x == '_') || (isDigit x)) cs) == cs
 
 isWhiteSpace :: Char -> Bool
 isWhiteSpace c = c `elem` " \t\n"
