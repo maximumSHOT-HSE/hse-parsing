@@ -51,6 +51,13 @@ elem :: Parser Char
 elem (c : cs) = Success (c, cs)
 elem [] = Error "Empty string"
 
+elem' :: (Char -> Bool) -> Parser String
+elem' pred inp
+  | s /= [] = Success(s, rest)
+  | otherwise = Error "Can't read symbol"
+  where
+    (s, rest) = span pred (dropWhile isSpace inp)
+
 -- Checks if the first character of the string is the given one
 char :: Char -> Parser Char
 char c = sat (== c) elem
@@ -69,4 +76,3 @@ map f parser inp =
   case parser (dropWhile isSpace inp) of
     Success (r, inp') -> Success (f r, inp')
     Error err -> Error err
-    

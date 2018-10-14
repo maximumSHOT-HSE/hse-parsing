@@ -51,10 +51,10 @@ factor =
     rparen |> return e -- No need to keep the parentheses
   )
   <|> identifier
-  <|> digit
+  <|> number
 
-digit :: Parser AST
-digit      = map (ANum   . T.digit) (sat T.isDigit elem)
+number :: Parser AST
+number      = map (ANum   . T.value) (sat T.isValue (elem' T.isDigit))
 
 identifier :: Parser AST
 identifier = map (AIdent . T.alpha) (sat T.isAlpha elem)
@@ -73,9 +73,6 @@ plusMinus = map T.operator (char '+' <|> char '-')
 
 divMult :: Parser T.Operator
 divMult   = map T.operator (char '/' <|> char '*')
-
-
-
 
 instance Show AST where
   show tree = "\n" ++ show' 0 tree

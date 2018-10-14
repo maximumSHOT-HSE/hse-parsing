@@ -32,6 +32,14 @@ digit c | c == '0' = 0
         | c == '9' = 9
 digit c = error ("Lexical error: " ++ c : " is not a digit!")
 
+value :: String -> Integer
+value [] = 0
+value s = read s :: Integer
+
+isValue :: String -> Bool
+isValue [] = False
+isValue s = fst (span isDigit s) == s
+
 isAlpha :: Char -> Bool
 isAlpha c = c `elem` ['a' .. 'z']
 

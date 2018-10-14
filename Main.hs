@@ -24,3 +24,5 @@ main = do
   runParser "1"
   runParser "1 + 2"
   runParser "1 +5  "
+  runParser "123+56*21/78"
+  runParser "   122132     *     2123213     - 321321 /    21324     +     52411        "
