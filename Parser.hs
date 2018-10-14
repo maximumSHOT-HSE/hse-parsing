@@ -12,6 +12,8 @@ data AST = ASum T.Operator AST AST
          | AUnaryMinus AST
          | APower T.Operator AST AST
          | ACmd T.Operator AST AST
+         | AComma T.Operator AST AST
+         | AList AST
 
 -- TODO: Rewrite this without using Success and Error
 parse :: String -> Maybe (Result AST)
@@ -22,7 +24,7 @@ parse input =
 
 commands :: Parser AST
 commands =
-  expression >>= \l ->
+  (list <|> expression) >>= \l ->
   ( ( cmd       >>= \op ->
       commands  >>= \r  -> return (ACmd op l r)
     )
@@ -69,6 +71,22 @@ factor =
   <|> number
   <|> unary_minus |> factor >>= \f -> return (AUnaryMinus f)
 
+list :: Parser AST
+list = 
+  ( sq_lparen |>
+    nodeSequence >>= \e ->
+    sq_rparen |> return (AList e)
+  )
+
+nodeSequence :: Parser AST
+nodeSequence =
+  (list <|> expression) >>= \l ->
+  ( ( comma        >>= \op ->
+      nodeSequence >>= \r  -> return (AComma op l r)
+    )
+    <|> return l
+  )
+
 unary_minus :: Parser Char
 unary_minus = char '-'
 
@@ -84,11 +102,20 @@ lparen = char '('
 rparen :: Parser Char
 rparen = char ')'
 
+sq_lparen :: Parser Char
+sq_lparen = char '['
+
+sq_rparen :: Parser Char
+sq_rparen = char ']'
+
 assignment :: Parser Char
 assignment = char '='
 
 plusMinus :: Parser T.Operator
 plusMinus = map T.operator (char '+' <|> char '-')
+
+comma :: Parser T.Operator
+comma = map T.operator (char ',')
 
 divMult :: Parser T.Operator
 divMult   = map T.operator (char '/' <|> char '*')
@@ -113,6 +140,8 @@ instance Show AST where
                   AUnaryMinus v -> showOp T.Minus : "\n" ++ show' (ident n) v
                   APower op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   ACmd op l r   -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AComma op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AList v       -> 'L' : "\n" ++ show' (ident n) v
         )
       ident = (+1)
       showOp T.Plus  = '+'
@@ -121,3 +150,4 @@ instance Show AST where
       showOp T.Div   = '/'
       showOp T.Power = '^'
       showOp T.Cmd   = ';'
+      showOp T.Comma = ','

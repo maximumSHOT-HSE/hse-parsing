@@ -6,10 +6,11 @@ data Operator = Plus
               | Div
               | Power
               | Cmd
+              | Comma
               deriving (Show, Eq)
 
 isOperator :: Char -> Bool
-isOperator x = x `elem` "+-*/^;"
+isOperator x = x `elem` "+-*/^;,"
 
 operator :: Char -> Operator
 operator c | c == '+' = Plus
@@ -18,6 +19,7 @@ operator c | c == '+' = Plus
            | c == '/' = Div
            | c == '^' = Power
            | c == ';' = Cmd
+           | c == ',' = Comma
 operator c = error ("Lexical error: " ++ c : " is not an operator!")
 
 isDigit :: Char -> Bool
