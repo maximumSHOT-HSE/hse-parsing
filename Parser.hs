@@ -9,6 +9,7 @@ data AST = ASum T.Operator AST AST
          | AAssign String AST
          | ANum Integer
          | AIdent String
+         | AUnaryMinus AST
 
 -- TODO: Rewrite this without using Success and Error
 parse :: String -> Maybe (Result AST)
@@ -52,6 +53,10 @@ factor =
   )
   <|> identifier
   <|> number
+  <|> unary_minus |> factor >>= \f -> return (AUnaryMinus f)
+
+unary_minus :: Parser Char
+unary_minus = char '-'
 
 number :: Parser AST
 number      = map (ANum   . T.value) (sat T.isValue (elem' T.isDigit))
@@ -80,11 +85,13 @@ instance Show AST where
       show' n t =
         (if n > 0 then \s -> concat (replicate (n - 1) "| ") ++ "|_" ++ s else id)
         (case t of
-                  ASum  op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
-                  AProd op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
-                  AAssign  v e -> v ++ " =\n" ++ show' (ident n) e
-                  ANum   i     -> show i
-                  AIdent i     -> show i)
+                  ASum  op l r  -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AProd op l r  -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AAssign  v e  -> v ++ " =\n" ++ show' (ident n) e
+                  ANum   i      -> show i
+                  AIdent i      -> show i
+                  AUnaryMinus v -> showOp T.Minus : "\n" ++ show' (ident n) v
+        )
       ident = (+1)
       showOp T.Plus  = '+'
       showOp T.Minus = '-'

@@ -12,10 +12,11 @@ Term -> Factor ((* | /) Term)?
 Factor -> Ident 
         | Num 
         | '(' Expr ')'
+        | -Factor
 
-Ident -> 'a' | 'b' | ... | 'z'
+Ident -> [a-z]+
 
-Num -> '0' | '1' | ... | '9'
+Num -> [0-9]+
 ```
 
 Running the build script `build.sh` generates an executable `Main`. `Main` parses several inputs specified and terminates.
