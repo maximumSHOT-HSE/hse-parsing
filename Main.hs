@@ -30,3 +30,5 @@ main = do
   runParser "awadwjfwek = 42"
   runParser "var = 32*3 + (- 83)/32"
   runParser " -   ---         5 - 6   "
+  runParser " var = 32^3 + (- 83)/32       "
+  runParser "a*b^c/d+e-f^(-2)*d"

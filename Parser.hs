@@ -10,6 +10,7 @@ data AST = ASum T.Operator AST AST
          | ANum Integer
          | AIdent String
          | AUnaryMinus AST
+         | APower T.Operator AST AST
 
 -- TODO: Rewrite this without using Success and Error
 parse :: String -> Maybe (Result AST)
@@ -37,10 +38,18 @@ expression =
 
 term :: Parser AST
 term =
-  -- make sure we don't reparse the factor (Term -> Factor (('/' | '*') Term | epsilon ))
-  factor >>= \l ->
+  power >>= \l ->
   ( ( divMult >>= \op ->
       term    >>= \r  -> return (AProd op l r)
+    )
+    <|> return l
+  )
+
+power :: Parser AST
+power =
+  factor >>= \l ->
+  ( ( power'' >>= \op ->
+      power   >>= \r  -> return (APower op l r)
     )
     <|> return l
   )
@@ -79,6 +88,9 @@ plusMinus = map T.operator (char '+' <|> char '-')
 divMult :: Parser T.Operator
 divMult   = map T.operator (char '/' <|> char '*')
 
+power'' :: Parser T.Operator
+power''     = map T.operator (char '^')
+
 instance Show AST where
   show tree = "\n" ++ show' 0 tree
     where
@@ -91,9 +103,11 @@ instance Show AST where
                   ANum   i      -> show i
                   AIdent i      -> show i
                   AUnaryMinus v -> showOp T.Minus : "\n" ++ show' (ident n) v
+                  APower op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
         )
       ident = (+1)
       showOp T.Plus  = '+'
       showOp T.Minus = '-'
       showOp T.Mult  = '*'
       showOp T.Div   = '/'
+      showOp T.Power = '^'
