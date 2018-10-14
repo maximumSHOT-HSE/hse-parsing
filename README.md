@@ -18,7 +18,7 @@ Factor -> Ident
         | '(' Expr ')'
         | -Factor
 
-List = '[' NodeSequence ']'
+List = '[' (NodeSequence | epsilon) ']'
 
 NodeSequence = (Expr | List) (, List)?
 

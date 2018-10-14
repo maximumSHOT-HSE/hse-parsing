@@ -14,6 +14,7 @@ data AST = ASum T.Operator AST AST
          | ACmd T.Operator AST AST
          | AComma T.Operator AST AST
          | AList AST
+         | AEPS
 
 -- TODO: Rewrite this without using Success and Error
 parse :: String -> Maybe (Result AST)
@@ -74,9 +75,12 @@ factor =
 list :: Parser AST
 list = 
   ( sq_lparen |>
-    nodeSequence >>= \e ->
+    (nodeSequence <|> epsilon) >>= \e ->
     sq_rparen |> return (AList e)
   )
+
+epsilon :: Parser AST
+epsilon = return AEPS
 
 nodeSequence :: Parser AST
 nodeSequence =
@@ -142,6 +146,7 @@ instance Show AST where
                   ACmd op l r   -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   AComma op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   AList v       -> 'L' : "\n" ++ show' (ident n) v
+                  AEPS          -> "epsilon"
         )
       ident = (+1)
       showOp T.Plus  = '+'
