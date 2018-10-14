@@ -2,6 +2,8 @@ module Combinators where
 -- Make sure that the names don't clash
 import Prelude hiding (lookup, (>>=), map, pred, return, elem)
 
+import Data.Char
+
 -- Input abstraction
 type Input = String
 
@@ -18,7 +20,7 @@ type Parser r = Input -> Result (r, Input)
 infixl 6 <|>
 (<|>) :: Parser a -> Parser a -> Parser a
 p <|> q = \inp ->
-  case p inp of
+  case p (dropWhile isSpace inp) of
     Error _ -> q inp
     result  -> result
 
@@ -27,7 +29,7 @@ p <|> q = \inp ->
 infixl 7 >>=
 (>>=) :: Parser a -> (a -> Parser b ) -> Parser b
 p >>= q = \inp ->
-  case p inp of
+  case p (dropWhile isSpace inp) of
     Success (r, inp') -> q r inp'
     Error err -> Error err
 
@@ -38,7 +40,7 @@ p |> q = p >>= const q
 
 -- Succeedes without consuming any input, returning a value
 return :: a -> Parser a
-return r inp = Success (r, inp)
+return r inp = Success (r, dropWhile isSpace inp)
 
 -- Always fails
 zero :: String -> Parser a
@@ -56,7 +58,7 @@ char c = sat (== c) elem
 -- Checks if the parser result satisfies the predicate
 sat :: (a -> Bool) -> Parser a -> Parser a
 sat pred parser inp =
-  case parser inp of
+  case parser (dropWhile isSpace inp) of
     Success (r, inp') | pred r ->  Success (r, inp')
     Success _ -> Error "Predicate is not satisfied"
     Error err -> Error err
@@ -64,6 +66,7 @@ sat pred parser inp =
 -- Applies the function to the result of the parser
 map :: (a -> b) -> Parser a -> Parser b
 map f parser inp =
-  case parser inp of
+  case parser (dropWhile isSpace inp) of
     Success (r, inp') -> Success (f r, inp')
     Error err -> Error err
+    

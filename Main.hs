@@ -19,7 +19,8 @@ instance {-# OVERLAPPING #-} Show a => Show (Maybe (Result a)) where
 main :: IO ()
 main = do
   runParser "1-2-3"
-  runParser "(((9)))"
-  runParser "1*2-3/4+5"
-  runParser "!"
+  runParser "((  (9)  ))    "
+  runParser "1*   2 -     3  /4+  5         "
+  runParser "1"
   runParser "1 + 2"
+  runParser "1 +5  "
