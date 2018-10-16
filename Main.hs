@@ -47,7 +47,8 @@ main = do
 
   runParser "[1, 2, [2 + 3, val = 123^15 + 10, [a], [zero, one, two, 3, 4, 5 + 0, val_1 = 6]], lol]; same; 777"
 
-  -- runParser "1abc"
+  runParser "1abc"
+  runParser "abc+"
 
   runParser "[[1], []]"
 

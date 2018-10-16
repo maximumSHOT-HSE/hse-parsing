@@ -16,12 +16,11 @@ data AST = ASum T.Operator AST AST
          | AList AST
          | AEPS
 
--- TODO: Rewrite this without using Success and Error
 parse :: String -> Maybe (Result AST)
 parse input =
   case input of
     [] -> Nothing
-    _  -> Just ( map' null "Syntax error on: " commands input )
+    _  -> Just (finish commands input)
 
 commands :: Parser AST
 commands =

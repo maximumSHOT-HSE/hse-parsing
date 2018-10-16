@@ -15,6 +15,13 @@ data Result r = Success r
 -- The result of parsing is some payload r and the suffix which wasn't parsed
 type Parser r = Input -> Result (r, Input)
 
+finish :: Parser r -> Input -> Result r
+finish parser input = 
+  case (parser input) of
+    Success (r, []) -> Success r
+    Success (r, ts) -> Error ("Syntax error on: " ++ show ts)
+    Error err -> Error err
+
 -- Choice combinator: checks if the input can be parsed with either the first, or the second parser
 -- Left biased: make sure, that the first parser consumes more input
 infixl 6 <|>
