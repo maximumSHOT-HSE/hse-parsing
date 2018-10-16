@@ -60,4 +60,4 @@ main = do
   runParser "[1-2-3] ++ x ++ [1, [12+1]]"
   runParser "[123] ++ [456]"
   runParser "[1-2-3] ++ x ++ [1, [12+1]]"
-  runParser "x = y ++ z" -- WA
+  runParser "x = y ++ z"
