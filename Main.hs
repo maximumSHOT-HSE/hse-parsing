@@ -61,3 +61,15 @@ main = do
   runParser "[123] ++ [456]"
   runParser "[1-2-3] ++ x ++ [1, [12+1]]"
   runParser "x = y ++ z"
+
+  runParser "x^y"
+
+  runParser "[1] ++ [2] ++ [3, 4, var = 5, [abc] ++ a ]"
+  runParser "[1] ++ [2] ++ [3, 4, var = 5, [abc] ++ [ab]]"
+
+  runParser "a * b / c * d"
+
+  runParser "var^43 + 32^34^(-12*34^21) - 3^-1"
+
+  runParser "x^y"
+  

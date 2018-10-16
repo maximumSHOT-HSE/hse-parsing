@@ -39,9 +39,14 @@ expression =
     expression >>= \r -> return (AAssign i r)
   )
   <|>
-  list_expr
+  ( identifier >>= \i  ->
+    concat_op  >>= \op ->
+    list_expr  >>= \e  -> return (AConcat op i e)
+  )
   <|>
-  arithmetic
+  (arithmetic >>= \x -> return x)
+  <|>
+  (list_expr  >>= \x -> return x)
 
 list_expr :: Parser AST
 list_expr = 
@@ -105,7 +110,7 @@ factor =
   )
   <|> identifier
   <|> number
-  <|> unary_minus |> factor >>= \f -> return (AUnaryMinus f)
+  <|> (unary_minus |> factor >>= \f -> return (AUnaryMinus f))
 
 list :: Parser AST
 list = 
@@ -119,12 +124,12 @@ epsilon = return AEPS
 
 nodeSequence :: Parser AST
 nodeSequence =
-  (list <|> arithmetic) >>= \l ->
-  ( ( comma        >>= \op ->
-      nodeSequence >>= \r  -> return (AComma op l r)
-    )
-    <|> return l
+  expression >>= \l ->
+  ( comma        >>= \op ->
+    nodeSequence >>= \r  ->
+    return (AComma op l r)
   )
+  <|> return l
 
 unary_minus :: Parser Char
 unary_minus = char '-'
