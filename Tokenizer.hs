@@ -7,10 +7,8 @@ data Operator = Plus
               | Power
               | Cmd
               | Comma
+              | Concat
               deriving (Show, Eq)
-
-isOperator :: Char -> Bool
-isOperator x = x `elem` "+-*/^;,"
 
 operator :: Char -> Operator
 operator c | c == '+' = Plus
@@ -21,6 +19,11 @@ operator c | c == '+' = Plus
            | c == ';' = Cmd
            | c == ',' = Comma
 operator c = error ("Lexical error: " ++ c : " is not an operator!")
+
+concat_op :: String -> Operator
+concat_op s
+  | s == "++" = Concat
+  | otherwise = error ("Lexical error: " ++ s ++ " is not an concat operator!")
 
 isDigit :: Char -> Bool
 isDigit x = x `elem` "0123456789"
@@ -67,3 +70,6 @@ isVarname (c:cs)
 
 isWhiteSpace :: Char -> Bool
 isWhiteSpace c = c `elem` " \t\n"
+
+isConcatOp :: String -> Bool
+isConcatOp s = s == "++"

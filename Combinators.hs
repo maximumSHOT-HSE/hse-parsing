@@ -58,6 +58,14 @@ elem :: Parser Char
 elem (c : cs) = Success (c, cs)
 elem [] = Error "Empty string"
 
+elem2 :: Parser String
+elem2 [] = Error "Too short string"
+elem2 (c:[]) = Error "Too short string"
+elem2 inp = Success ([c1, c2], cs)
+  where
+    (c1:cs1) = inp
+    (c2:cs)  = cs1
+
 elem' :: (Char -> Bool) -> Parser String
 elem' pred inp
   | s /= [] = Success(s, rest)

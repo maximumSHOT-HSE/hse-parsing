@@ -4,10 +4,18 @@ A simple recursive descent parser. Written for the formal languages course in HS
 ```
 S -> Commands | \epsilon
 
-Commands -> (List | Expr) (; Commands)?
+Commands -> Expr (; Commands)?
 
-Expr -> Ident = Expr
-      | Term ((+ | -) Expr)?
+Expr > Ident = Expr
+  | Arithmetic
+  | ListExpr
+
+ListExpr -> Ident = ListExpr
+      | Ident (++ ListExpr)?
+      | List  (++ ListExpr)?
+
+Arithmetic -> Ident = Arithmetic
+      | Term ((+ | -) Arithmetic)?
 
 Term -> Power ((* | /) Term)?
 
@@ -15,12 +23,12 @@ Power -> Factor (^ Power)?
 
 Factor -> Ident 
         | Num 
-        | '(' Expr ')'
+        | '(' Arithmetic ')'
         | -Factor
 
 List = '[' (NodeSequence | epsilon) ']'
 
-NodeSequence = (Expr | List) (, List)?
+NodeSequence = (Arithmetic | List) (, List)?
 
 Ident -> [a-z]+
 

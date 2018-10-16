@@ -52,3 +52,12 @@ main = do
 
   runParser "[[1], []]"
 
+  runParser "a = [1,2, 3]; b = 56^-2"
+
+  runParser "a = [1,2,3] ++ [4,5,6]"
+
+  runParser "[1 + 2, 3 + 4, [7, 8, 9]] ++ [a]; x = []; [1, 2, 3]"
+  runParser "[1-2-3] ++ x ++ [1, [12+1]]"
+  runParser "[123] ++ [456]"
+  runParser "[1-2-3] ++ x ++ [1, [12+1]]"
+  runParser "x = y ++ z" -- WA

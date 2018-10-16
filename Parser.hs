@@ -15,6 +15,7 @@ data AST = ASum T.Operator AST AST
          | AComma T.Operator AST AST
          | AList AST
          | AEPS
+         | AConcat T.Operator AST AST
 
 parse :: String -> Maybe (Result AST)
 parse input =
@@ -24,7 +25,7 @@ parse input =
 
 commands :: Parser AST
 commands =
-  (list <|> expression) >>= \l ->
+  expression >>= \l ->
   ( ( cmd       >>= \op ->
       commands  >>= \r  -> return (ACmd op l r)
     )
@@ -35,13 +36,48 @@ expression :: Parser AST
 expression =
   ( identifier >>= \(AIdent i) ->
     assignment |>
-    expression >>= \e -> return (AAssign i e)
+    expression >>= \r -> return (AAssign i r)
   )
-  <|> ( term       >>= \l  -> -- Here the identifier is parsed twice :(
-        plusMinus  >>= \op ->
-        expression >>= \r  -> return (ASum op l r)
-      )
-  <|> term
+  <|>
+  list_expr
+  <|>
+  arithmetic
+
+list_expr :: Parser AST
+list_expr = 
+  ( identifier >>= \(AIdent i) ->
+    ( assignment |>
+      list_expr >>= \e -> return (AAssign i e)
+    )
+    <|>
+    ( concat_op >>= \op ->
+      list_expr >>= \r  -> 
+      return (AConcat op (AIdent i) r)
+    )
+    <|> return (AIdent i)
+  )
+  <|>
+  ( list >>= \l -> 
+    ( concat_op >>= \op ->
+      list_expr >>= \r  -> return (AConcat op l r)
+    )
+    <|> return l
+  )
+
+arithmetic :: Parser AST
+arithmetic =
+  ( identifier >>= \(AIdent i) ->
+    assignment |>
+    arithmetic >>= \e -> return (AAssign i e)
+  )
+  <|> 
+  term       >>= \l  -> -- Here the identifier is parsed twice :(
+  ( ( plusMinus  >>= \op ->
+        arithmetic >>= \r  -> return (ASum op l r)
+    )
+    <|>
+    return l
+  )
 
 term :: Parser AST
 term =
@@ -64,7 +100,7 @@ power =
 factor :: Parser AST
 factor =
   ( lparen |>
-    expression >>= \e ->
+    arithmetic >>= \e ->
     rparen |> return e -- No need to keep the parentheses
   )
   <|> identifier
@@ -83,7 +119,7 @@ epsilon = return AEPS
 
 nodeSequence :: Parser AST
 nodeSequence =
-  (list <|> expression) >>= \l ->
+  (list <|> arithmetic) >>= \l ->
   ( ( comma        >>= \op ->
       nodeSequence >>= \r  -> return (AComma op l r)
     )
@@ -129,23 +165,27 @@ power''     = map T.operator (char '^')
 cmd :: Parser T.Operator
 cmd         = map T.operator (char ';')
 
+concat_op :: Parser T.Operator
+concat_op   = map T.concat_op (sat T.isConcatOp elem2)
+
 instance Show AST where
   show tree = "\n" ++ show' 0 tree
     where
       show' n t =
         (if n > 0 then \s -> concat (replicate (n - 1) "| ") ++ "|_" ++ s else id)
         (case t of
-                  ASum  op l r  -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
-                  AProd op l r  -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
-                  AAssign  v e  -> v ++ " =\n" ++ show' (ident n) e
-                  ANum   i      -> show i
-                  AIdent i      -> show i
-                  AUnaryMinus v -> showOp T.Minus : "\n" ++ show' (ident n) v
-                  APower op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
-                  ACmd op l r   -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
-                  AComma op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
-                  AList v       -> 'L' : "\n" ++ show' (ident n) v
-                  AEPS          -> "epsilon"
+                  ASum  op l r   -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AProd op l r   -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AAssign  v e   -> v ++ " =\n" ++ show' (ident n) e
+                  ANum   i       -> show i
+                  AIdent i       -> show i
+                  AUnaryMinus v  -> showOp T.Minus : "\n" ++ show' (ident n) v
+                  APower op l r  -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  ACmd op l r    -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AComma op l r  -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AList v        -> 'L' : "\n" ++ show' (ident n) v
+                  AEPS           -> "epsilon"
+                  AConcat op l r -> "++\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
         )
       ident = (+1)
       showOp T.Plus  = '+'
