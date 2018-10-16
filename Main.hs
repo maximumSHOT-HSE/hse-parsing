@@ -72,4 +72,11 @@ main = do
   runParser "var^43 + 32^34^(-12*34^21) - 3^-1"
 
   runParser "x^y"
+
+
+  runParser "a = b = [var = 12^-2]; [[]++[a] ++ [] ++ []]"
+  runParser "[ [a] ++ a ++ [ baca ++ [1,2,3, var = 56^-2123, [abc] ++ [a ++ [def]] ] ] ]"
+  runParser "[ [a] ++ a ++ [ baca ++ [ 1,2, 3, b ++ [123] ] ] ]"
+  runParser "[ [a] ++ a ++ [baca ++ [1,2,3]] ]"
+  runParser "[ a ++ [b ++ [c ++ [d ++ [e, var = 5, [123, v ++ [c,e,f]]]]]] ]"
   
